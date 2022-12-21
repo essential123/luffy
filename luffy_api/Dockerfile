@@ -6,7 +6,7 @@ MAINTAINER xxx
 RUN mkdir /soft
 WORKDIR /soft
 COPY ./requestment.txt /soft/requestment.txt
-RUN pip install -r requestment.txt -i https://pypi.doubanio.com/simple
+RUN pip install -r requirements.txt -i https://pypi.doubanio.com/simple
 #CMD ["uwsgi", "-x", "./luffy.xml"]
 CMD ["uwsgi", "./luffy.ini"]
 #CMD ["python", "manage_pro.py", "runserver"]
