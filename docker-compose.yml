@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx
+    container_name: luffy_nginx
+    ports:
+      - "80:80"
+      - "8000:8000"
+    restart: always
+    volumes:
+      - ./luffycity/dist:/var/www/html
+      - ./docker_compose_files/nginx:/etc/nginx/conf.d
+    depends_on:
+      - django
+    networks:
+      - web
+
+  django:
+    build:
+      context: ./luffy_api
+      dockerfile: Dockerfile
+    container_name: luffy_django
+#    command: python manage_pro.py makemigrations && python manage_pro.py migrate && uwsgi ./luffy.ini
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./luffy_api:/soft
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - web
+  redis:
+    image: redis:6.0-alpine
+    container_name: luffy_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker_compose_files/redis/data:/data
+      - ./docker_compose_files/redis/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - web
+  mysql:
+    image: mysql:5.7
+    container_name: luffy_mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./docker_compose_files/mysql.env
+    volumes:
+      - ./docker_compose_files/mysql/data:/var/lib/mysql
+      - ./docker_compose_files/mysql/logs:/var/log/mysql
+      - ./docker_compose_files/mysql/conf:/etc/mysql/conf.d
+    networks:
+      - web
+
+networks:
+  web:
